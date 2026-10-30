@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fichaje</title>
+<meta name="description" content="Apunta tus turnos y suma tus horas semanales.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2C5E50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fichaje">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#ECF0EC; --surface:#FAFCFA; --ink:#17211D; --muted:#5D6B64; --line:#CBD5CE;
+  --accent:#2C5E50; --accent-ink:#FFFFFF; --holiday:#A8640F; --holiday-soft:#F6E7CF; --danger:#B42318;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#121815; --surface:#1A221E; --ink:#E6EEE9; --muted:#97A69E; --line:#2E3A34;
+  --accent:#6FB8A2; --accent-ink:#0E1512; --holiday:#E3A64E; --holiday-soft:#3A2C17; --danger:#F07A6E; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding-top:max(20px,env(safe-area-inset-top,0px));padding-bottom:max(48px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1.05;margin:0;letter-spacing:-.01em}
+.sub{margin:4px 0 0;color:var(--muted)}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Avisos de navegador / instalación */
+.banner{border-radius:14px;padding:14px 16px;display:grid;gap:10px;border:1px solid var(--holiday);background:var(--holiday-soft)}
+.banner h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0;line-height:1.2}
+.banner p{margin:0}
+.banner ol{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.banner .row-btn{display:flex;gap:8px;flex-wrap:wrap}
+.banner.install{border-color:var(--accent);background:var(--surface)}
+.share-ico{display:inline-block;width:18px;height:18px;vertical-align:-3px;color:var(--accent)}
+
+.now{background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:16px 18px;display:grid;gap:10px}
+.now .label{color:inherit;opacity:.8}
+.now .big{font-family:var(--mono);font-weight:600;font-size:2.4rem;line-height:1}
+.now .split{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.92rem}
+.now .split b{font-family:var(--mono);font-weight:600}
+
+form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:4px;min-width:0}
+input[type=date],input[type=time],input[type=text]{font:inherit;font-family:var(--mono);font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%;min-width:0;min-height:44px;-webkit-appearance:none;appearance:none}
+input[type=text]{font-family:var(--body)}
+input:focus-visible,button:focus-visible,.toggle:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px;cursor:pointer;user-select:none}
+.toggle input{width:20px;height:20px;accent-color:var(--holiday);margin:0}
+.toggle.on{background:var(--holiday-soft);border-color:var(--holiday);border-style:solid}
+.toggle span{font-weight:500}
+.preview{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-top:4px;border-top:1px solid var(--line)}
+.preview .num{font-size:1.3rem;font-weight:600}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+button,.btn{font:inherit;font-weight:600;border-radius:8px;padding:11px 16px;cursor:pointer;border:1px solid transparent;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.primary{background:var(--accent);color:var(--accent-ink);flex:1}
+.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+.err{color:var(--danger);font-size:.9rem;margin:0}
+.msg{color:var(--accent);font-size:.9rem;margin:0}
+
+.week{display:grid;gap:8px}
+.week-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;padding:0 2px}
+.week-head h2{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0}
+.ticket{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.shift{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.shift:last-child{border-bottom:0}
+.day{font-weight:600;line-height:1.15}
+.day small{display:block;font-weight:400;color:var(--muted);font-family:var(--mono);font-size:.8rem}
+.span{min-width:0}
+.span .meta{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere}
+.chip{display:inline-block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--holiday);background:var(--holiday-soft);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+.dur{text-align:right;display:grid;justify-items:end;gap:2px}
+.dur .num{font-weight:600}
+.mini{display:flex;gap:4px}
+.mini button{padding:4px 9px;font-size:.78rem;font-weight:500;background:transparent;border:1px solid var(--line);color:var(--muted)}
+.mini button.confirm{color:var(--danger);border-color:var(--danger)}
+.totals{display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg);border-top:1px solid var(--line)}
+.totals div{padding:10px 12px;display:grid;gap:2px}
+.totals div+div{border-left:1px solid var(--line)}
+.totals .num{font-weight:600;font-size:1.02rem}
+.totals .hol .num{color:var(--holiday)}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:22px 18px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-family:var(--display);font-size:1.1rem;margin-bottom:4px}
+
+.backup{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
+.backup h2{font-family:var(--display);font-weight:600;font-size:1.05rem;margin:0}
+.backup p{margin:0;color:var(--muted);font-size:.88rem}
+.backup .actions button{flex:1}
+@media (max-width:380px){.shift{grid-template-columns:48px 1fr auto}.now .big{font-size:2rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Fichaje</h1>
+    <p class="sub">Apunta cada turno de entrada a salida. Las horas se suman por semana, de lunes a domingo.</p>
+  </header>
+
+  <!-- Abierto dentro de WhatsApp / Instagram / etc. -->
+  <section class="banner" id="inapp" hidden>
+    <h2>Ábrela en tu navegador para instalarla</h2>
+    <p id="inappText">Estás dentro de WhatsApp. Desde aquí no se puede añadir a la pantalla de inicio y las horas podrían borrarse.</p>
+    <div class="row-btn"><a class="btn primary" id="openOut" href="#">Abrir en Safari</a></div>
+    <ol id="inappSteps" hidden></ol>
+  </section>
+
+  <!-- Instrucciones de instalación -->
+  <section class="banner install" id="install" hidden>
+    <h2>Instálala en tu móvil</h2>
+    <div id="installIOS" hidden>
+      <ol>
+        <li>Pulsa el botón <b>Compartir</b> <svg class="share-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> abajo (o arriba, en iPad).</li>
+        <li>Baja y elige <b>Añadir a pantalla de inicio</b>.</li>
+        <li>Pulsa <b>Añadir</b>. Te aparecerá el icono de Fichaje.</li>
+      </ol>
+    </div>
+    <div id="installAndroid" hidden>
+      <p>Pulsa el botón y tendrás Fichaje como una app más.</p>
+    </div>
+    <div id="installOther" hidden>
+      <p>Abre el menú del navegador (⋮) y elige <b>Instalar app</b> o <b>Añadir a pantalla de inicio</b>.</p>
+    </div>
+    <div class="row-btn">
+      <button type="button" class="primary" id="installBtn" hidden>Instalar app</button>
+      <button type="button" class="ghost" id="installLater">Ahora no</button>
+    </div>
+  </section>
+
+  <section class="now" aria-live="polite">
+    <span class="label" id="nowLabel">Esta semana</span>
+    <span class="big" id="nowTotal">0 h</span>
+    <div class="split">
+      <span>Normales <b id="nowNormal">0 h</b></span>
+      <span>Festivos <b id="nowHoliday">0 h</b></span>
+      <span>Turnos <b id="nowCount">0</b></span>
+    </div>
+  </section>
+
+  <form id="form" novalidate>
+    <div class="field">
+      <label class="label" for="date">Día</label>
+      <input type="date" id="date" required>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="label" for="start">Entrada</label>
+        <input type="time" id="start" required>
+      </div>
+      <div class="field">
+        <label class="label" for="end">Salida</label>
+        <input type="time" id="end" required>
+      </div>
+    </div>
+    <label class="toggle" id="holidayWrap"><input type="checkbox" id="holiday"><span>Es festivo</span></label>
+    <div class="field">
+      <label class="label" for="note">Nota (opcional)</label>
+      <input type="text" id="note" maxlength="80" placeholder="Ej.: cubrí a un compañero">
+    </div>
+    <div class="preview"><span class="label">Duración del turno</span><span class="num" id="preview">—</span></div>
+    <p class="err" id="err" hidden></p>
+    <div class="actions">
+      <button type="submit" class="primary" id="submit">Apuntar turno</button>
+      <button type="button" class="ghost" id="cancel" hidden>Cancelar</button>
+    </div>
+  </form>
+
+  <section id="weeks" aria-label="Semanas" style="display:grid;gap:22px"></section>
+
+  <section class="backup" aria-labelledby="bkTitle">
+    <h2 id="bkTitle">Copia de seguridad</h2>
+    <p>Tus horas se guardan solo en este móvil. Guarda una copia de vez en cuando por si cambias de móvil o se borran los datos del navegador.</p>
+    <div class="actions">
+      <button type="button" class="ghost" id="exportBtn">Guardar copia</button>
+      <button type="button" class="ghost" id="importBtn">Recuperar copia</button>
+    </div>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <p class="msg" id="bkMsg" hidden></p>
+  </section>
+</main>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const DAYS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  const LS_KEY="fichaje-turnos", LS_LAST="fichaje-ultimo", LS_HIDE="fichaje-ocultar-instalar";
+  let shifts=[], editingId=null, pendingDelete=null;
+
+  function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+  function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+
+  // ---------- Detección de navegador ----------
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  const isAndroid = /Android/i.test(ua);
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const inAppNamed = /WhatsApp|Instagram|FBAN|FBAV|FB_IAB|Line\/|Telegram|Snapchat|TikTok|musical_ly|Twitter/i.test(ua);
+  // En iOS, los navegadores internos no llevan "Safari/" en el user agent
+  const iosWebview = isIOS && !/Safari\//.test(ua) && !standalone;
+  const androidWebview = isAndroid && /; wv\)/.test(ua);
+  const inApp = !standalone && (inAppNamed || iosWebview || androidWebview);
+  const appName = /WhatsApp/i.test(ua) ? "WhatsApp" : /Instagram/i.test(ua) ? "Instagram" : /FBAN|FBAV|FB_IAB/i.test(ua) ? "Facebook" : /Telegram/i.test(ua) ? "Telegram" : "otra app";
+
+  function setupBanners(){
+    if(standalone) return;
+    if(inApp){
+      $("inapp").hidden=false;
+      $("inappText").textContent = `Estás dentro de ${appName}. Desde aquí no se puede añadir a la pantalla de inicio y las horas podrían borrarse.`;
+      const url = location.href.split("#")[0];
+      const btn = $("openOut"), steps=$("inappSteps");
+      if(isIOS){
+        btn.textContent="Abrir en Safari";
+        btn.href = "x-safari-" + url;   // iOS 17 o posterior
+        steps.innerHTML = "<li>Si el botón no hace nada, pulsa <b>⋯</b> o el icono de compartir de esta pantalla.</li><li>Elige <b>Abrir en Safari</b> (o «Abrir en el navegador»).</li>";
+      }else if(isAndroid){
+        btn.textContent="Abrir en Chrome";
+        const noProto = url.replace(/^https?:\/\//,"");
+        btn.href = `intent://${noProto}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+        steps.innerHTML = "<li>Si el botón no hace nada, pulsa los tres puntos <b>⋮</b> arriba a la derecha.</li><li>Elige <b>Abrir en Chrome</b> (o «Abrir en el navegador»).</li>";
+      }else{
+        btn.hidden=true;
+        steps.innerHTML = "<li>Abre el menú de esta pantalla.</li><li>Elige <b>Abrir en el navegador</b>.</li>";
+      }
+      btn.addEventListener("click",()=>{ setTimeout(()=>{ steps.hidden=false; },1200); });
+      return;
+    }
+    if(lsGet(LS_HIDE,false)) return;
+    if(isIOS){ $("install").hidden=false; $("installIOS").hidden=false; }
+    else if(isAndroid){ $("install").hidden=false; $("installOther").hidden=false; }
+  }
+  let deferredPrompt=null;
+  window.addEventListener("beforeinstallprompt",e=>{
+    e.preventDefault(); deferredPrompt=e;
+    if(standalone || inApp || lsGet(LS_HIDE,false)) return;
+    $("install").hidden=false; $("installOther").hidden=true; $("installAndroid").hidden=false; $("installBtn").hidden=false;
+  });
+  $("installBtn").addEventListener("click",async()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    try{ const r=await deferredPrompt.userChoice; if(r.outcome==="accepted") $("install").hidden=true; }catch(e){}
+    deferredPrompt=null; $("installBtn").hidden=true;
+  });
+  window.addEventListener("appinstalled",()=>{ $("install").hidden=true; });
+  $("installLater").addEventListener("click",()=>{ $("install").hidden=true; lsSet(LS_HIDE,true); });
+
+  // ---------- Cálculo ----------
+  const toMin = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
+  // Si la salida es igual o anterior a la entrada, el turno termina al día siguiente
+  function minutes(s,e){ if(!s||!e) return null; let d=toMin(e)-toMin(s); if(d<=0) d+=1440; return d; }
+  function fmt(min){ const h=Math.floor(min/60), m=min%60; return m? `${h} h ${String(m).padStart(2,"0")}` : `${h} h`; }
+  function parseDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+  function iso(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+  function monday(s){ const d=parseDate(s); const k=(d.getDay()+6)%7; d.setDate(d.getDate()-k); return iso(d); }
+  function weekTitle(mon){
+    const a=parseDate(mon), b=new Date(a); b.setDate(a.getDate()+6);
+    return a.getMonth()===b.getMonth() ? `${a.getDate()}–${b.getDate()} ${MONTHS[b.getMonth()]}` : `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]}`;
+  }
+  function sumWeek(list){ let n=0,h=0; list.forEach(s=>{const m=minutes(s.start,s.end)||0; s.holiday?h+=m:n+=m;}); return {n,h,t:n+h}; }
+
+  // ---------- Formulario ----------
+  function resetForm(){
+    const last = lsGet(LS_LAST,{start:"17:00",end:"00:00"});
+    $("date").value = iso(new Date()); $("start").value = last.start; $("end").value = last.end;
+    $("holiday").checked=false; $("note").value=""; editingId=null;
+    $("submit").textContent="Apuntar turno"; $("cancel").hidden=true; $("err").hidden=true;
+    syncToggle(); updatePreview();
+  }
+  function syncToggle(){ $("holidayWrap").classList.toggle("on",$("holiday").checked); }
+  function updatePreview(){
+    const m = minutes($("start").value,$("end").value);
+    const next = m!==null && toMin($("end").value)<=toMin($("start").value);
+    $("preview").textContent = m===null ? "—" : fmt(m) + (next ? " · termina al día siguiente" : "");
+  }
+  function persist(){
+    if(!lsSet(LS_KEY,shifts)) showErr("No se ha podido guardar en este navegador. Si estás en modo privado, ábrela en una pestaña normal.");
+  }
+
+  // ---------- Lista ----------
+  function render(){
+    const cur = monday(iso(new Date()));
+    const groups = {};
+    shifts.forEach(s=>{ (groups[monday(s.date)] ||= []).push(s); });
+    const curSum = sumWeek(groups[cur]||[]);
+    $("nowLabel").textContent = `Esta semana · ${weekTitle(cur)}`;
+    $("nowTotal").textContent = fmt(curSum.t);
+    $("nowNormal").textContent = fmt(curSum.n);
+    $("nowHoliday").textContent = fmt(curSum.h);
+    $("nowCount").textContent = (groups[cur]||[]).length;
+
+    const box = $("weeks"); box.innerHTML="";
+    const keys = Object.keys(groups).sort().reverse();
+    if(!keys.length){
+      box.innerHTML = `<div class="empty"><strong>Aún no hay turnos</strong>Rellena el día, la hora de entrada y la de salida y pulsa «Apuntar turno». Aquí verás cada semana con su total.</div>`;
+      return;
+    }
+    keys.forEach(k=>{
+      const list = groups[k].slice().sort((a,b)=> (a.date+a.start).localeCompare(b.date+b.start));
+      const sum = sumWeek(list);
+      const w = document.createElement("div"); w.className="week";
+      w.innerHTML = `<div class="week-head"><h2>${k===cur?"Esta semana":"Semana"} · ${weekTitle(k)}</h2><span class="label">${list.length} turno${list.length===1?"":"s"}</span></div>`;
+      const t = document.createElement("div"); t.className="ticket";
+      list.forEach(s=>{
+        const d=parseDate(s.date), m=minutes(s.start,s.end)||0;
+        const r=document.createElement("div"); r.className="shift";
+        const day=document.createElement("div"); day.className="day";
+        day.innerHTML=`${DAYS[d.getDay()]}<small>${d.getDate()} ${MONTHS[d.getMonth()]}</small>`;
+        const sp=document.createElement("div"); sp.className="span";
+        const tm=document.createElement("div"); tm.className="num"; tm.textContent=`${s.start} → ${s.end}`;
+        if(s.holiday){const c=document.createElement("span");c.className="chip";c.textContent="Festivo";tm.appendChild(c);}
+        sp.appendChild(tm);
+        if(s.note){const n=document.createElement("div");n.className="meta";n.textContent=s.note;sp.appendChild(n);}
+        const du=document.createElement("div"); du.className="dur";
+        du.innerHTML=`<span class="num">${fmt(m)}</span>`;
+        const mini=document.createElement("div"); mini.className="mini";
+        const eb=document.createElement("button"); eb.type="button"; eb.textContent="Editar"; eb.onclick=()=>startEdit(s);
+        const db=document.createElement("button"); db.type="button";
+        const confirming = pendingDelete===s.id;
+        db.textContent = confirming ? "¿Borrar?" : "Borrar"; if(confirming) db.className="confirm";
+        db.onclick=()=>{ if(pendingDelete===s.id){ remove(s.id); } else { pendingDelete=s.id; render(); setTimeout(()=>{ if(pendingDelete===s.id){pendingDelete=null;render();} },4000);} };
+        mini.append(eb,db); du.appendChild(mini);
+        r.append(day,sp,du); t.appendChild(r);
+      });
+      const tot=document.createElement("div"); tot.className="totals";
+      tot.innerHTML=`<div><span class="label">Normales</span><span class="num">${fmt(sum.n)}</span></div><div class="hol"><span class="label">Festivos</span><span class="num">${fmt(sum.h)}</span></div><div><span class="label">Total</span><span class="num">${fmt(sum.t)}</span></div>`;
+      t.appendChild(tot); w.appendChild(t); box.appendChild(w);
+    });
+  }
+
+  function startEdit(s){
+    editingId=s.id; $("date").value=s.date; $("start").value=s.start; $("end").value=s.end;
+    $("holiday").checked=!!s.holiday; $("note").value=s.note||"";
+    $("submit").textContent="Guardar cambios"; $("cancel").hidden=false; syncToggle(); updatePreview();
+    $("form").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function showErr(msg){ $("err").textContent=msg; $("err").hidden=false; }
+
+  function save(e){
+    e.preventDefault(); $("err").hidden=true;
+    const obj={date:$("date").value,start:$("start").value,end:$("end").value,holiday:$("holiday").checked,note:$("note").value.trim()};
+    if(!obj.date||!obj.start||!obj.end){ showErr("Falta el día, la hora de entrada o la de salida."); return; }
+    if(obj.start===obj.end){ showErr("La entrada y la salida son la misma hora. Revisa una de las dos."); return; }
+    lsSet(LS_LAST,{start:obj.start,end:obj.end});
+    if(editingId){ const id=editingId; shifts=shifts.map(s=>s.id===id?{id,...obj}:s); }
+    else { shifts.push({id:"t"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),...obj}); }
+    persist(); render(); resetForm();
+  }
+  function remove(id){
+    pendingDelete=null;
+    shifts=shifts.filter(s=>s.id!==id); persist();
+    if(editingId===id) resetForm();
+    render();
+  }
+
+  // ---------- Copia de seguridad ----------
+  function bkMsg(t,err){ const el=$("bkMsg"); el.textContent=t; el.className= err?"err":"msg"; el.hidden=false; }
+  $("exportBtn").addEventListener("click",async()=>{
+    const data = JSON.stringify({app:"fichaje",version:1,exportado:new Date().toISOString(),turnos:shifts},null,2);
+    const name = `fichaje-copia-${iso(new Date())}.json`;
+    const file = new File([data],name,{type:"application/json"});
+    try{
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:"Copia de Fichaje"});
+        bkMsg("Copia lista. Guárdala en Archivos, Drive o mándatela por WhatsApp."); return;
+      }
+    }catch(e){ if(e && e.name==="AbortError") return; }
+    const a=document.createElement("a"); a.href=URL.createObjectURL(file); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    bkMsg("Copia descargada: " + name);
+  });
+  $("importBtn").addEventListener("click",()=>$("importFile").click());
+  $("importFile").addEventListener("change",async e=>{
+    const f=e.target.files && e.target.files[0]; e.target.value="";
+    if(!f) return;
+    try{
+      const j=JSON.parse(await f.text());
+      const list = Array.isArray(j) ? j : j.turnos;
+      if(!Array.isArray(list)) throw 0;
+      const ok = list.filter(s=>s && /^\d{4}-\d{2}-\d{2}$/.test(s.date) && /^\d{2}:\d{2}$/.test(s.start) && /^\d{2}:\d{2}$/.test(s.end));
+      const byId = new Map(shifts.map(s=>[s.id,s]));
+      let added=0;
+      ok.forEach(s=>{ const id=s.id||("t"+Math.random().toString(36).slice(2,10)); if(!byId.has(id)) added++; byId.set(id,{id,date:s.date,start:s.start,end:s.end,holiday:!!s.holiday,note:String(s.note||"").slice(0,80)}); });
+      shifts=[...byId.values()]; persist(); render();
+      bkMsg(added ? `Recuperados ${added} turno${added===1?"":"s"}.` : "Esa copia no tenía turnos nuevos.");
+    }catch(err){ bkMsg("Ese archivo no es una copia de Fichaje. Elige el archivo .json que guardaste.",true); }
+  });
+
+  // ---------- Arranque ----------
+  $("form").addEventListener("submit",save);
+  $("cancel").addEventListener("click",resetForm);
+  $("holiday").addEventListener("change",syncToggle);
+  ["start","end"].forEach(id=>$(id).addEventListener("input",updatePreview));
+  shifts = lsGet(LS_KEY,[]);
+  setupBanners(); resetForm(); render();
+  if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) render(); });
+})();
+</script>
+</body>
+</html>
